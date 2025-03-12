@@ -2,8 +2,6 @@
 
 A full-stack web application that generates IEEE-formatted research papers based on user-provided inputs, complete with AI-powered content generation capabilities.
 
-![Research Paper Assistant](https://via.placeholder.com/800x400?text=Research+Paper+Assistant)
-
 ## 🚀 Features
 
 - **User Input Form**:
