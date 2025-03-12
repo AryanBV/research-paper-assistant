@@ -49,6 +49,17 @@ app.get('/', (req, res) => {
   res.send('Research Paper Assistant API is running');
 });
 
+// Production mode configuration - MOVED UP FROM BOTTOM
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React app
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  
+  // Handle any requests that don't match the above
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  });
+}
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
