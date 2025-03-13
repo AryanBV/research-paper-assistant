@@ -34,8 +34,11 @@ RUN npm install && \
     cd server && npm install && \
     cd ../client && npm install && npm run build
 
+# Change working directory to server directory
+WORKDIR /app/server
+
 # Expose port 4000
 EXPOSE 4000
 
-# Use shell form of CMD to ensure shell commands work properly
-CMD ["sh", "-c", "cd server && node index.js"]
+# Run server directly without cd command
+CMD ["node", "index.js"]
