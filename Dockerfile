@@ -33,22 +33,31 @@ RUN mkdir -p /app/server/uploads && chmod 777 /app/server/uploads
 RUN chmod 777 /app/server && chmod 777 /app/client
 
 # Install root dependencies
-RUN npm install --production --no-bin-links
+RUN npm install --production
 
 # Install server dependencies
 WORKDIR /app/server
-RUN npm install --production --no-bin-links
+RUN npm install --production
 
 # Install and build client
 WORKDIR /app/client
-RUN npm install --no-bin-links
-RUN npm run build
+RUN npm install
+# Fix for react-scripts not found - install it explicitly
+RUN npm install react-scripts@5.0.1 --save
+# Use npx to run the build command to ensure it finds react-scripts
+RUN npx react-scripts build
 
 # Copy the rest of the app
 WORKDIR /app
 COPY . .
 
+# Copy the built client files to replace the ones we just copied
+WORKDIR /app/client
+RUN npm install
+RUN npx react-scripts build
+
 # Ensure uploads directory exists and has correct permissions
+WORKDIR /app
 RUN chmod -R 777 /app/server/uploads
 
 # Set environment variables
