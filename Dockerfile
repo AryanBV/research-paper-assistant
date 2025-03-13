@@ -6,11 +6,10 @@ WORKDIR /app
 # Copy the entire project
 COPY . .
 
-# Create and set permissions for uploads directory
-RUN mkdir -p /app/server/uploads && \
-    chmod 777 /app/server/uploads
+# Create uploads directory without changing permissions
+RUN mkdir -p /app/server/uploads
 
-# Install dependencies using production flag to skip dev dependencies
+# Install dependencies
 RUN npm install --production && \
     cd server && npm install --production && \
     cd ../client && npm install && npm run build
@@ -21,7 +20,7 @@ WORKDIR /app/server
 # Expose port 4000
 EXPOSE 4000
 
-# Run server with explicit environment variables
+# Set environment variables
 ENV NODE_ENV=production \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 

@@ -25,6 +25,24 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Log uploads directory access information
+console.log(`Uploads directory: ${uploadsDir}`);
+try {
+  // Try to write a test file to verify writability
+  const testFile = path.join(uploadsDir, '.permissions-test');
+  fs.writeFileSync(testFile, 'test');
+  fs.unlinkSync(testFile);
+  console.log('Uploads directory is writable');
+} catch (error) {
+  console.error('Warning: Uploads directory is not writable:', error.message);
+}
+
 // Serve uploads directory statically
 app.use('/uploads', express.static(uploadsDir));
 
