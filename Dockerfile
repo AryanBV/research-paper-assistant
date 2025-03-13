@@ -23,27 +23,31 @@ RUN apt-get update && apt-get install -y \
 
 # Set Chrome executable path for Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV NODE_ENV=production
+ENV PORT=4000
 
 # Set working directory
 WORKDIR /app
 
-# Copy server files
-COPY server /app/server/
+# Copy package files first (for better caching)
 COPY package.json /app/
-
-# Create uploads directory
-RUN mkdir -p /app/server/uploads
+COPY server/package.json /app/server/
 
 # Install server dependencies
 WORKDIR /app/server
 RUN npm install --production
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=4000
+# Copy server files
+COPY server /app/server/
+
+# Create uploads directory with correct permissions
+RUN mkdir -p /app/server/uploads && chmod 777 /app/server/uploads
 
 # Expose port
 EXPOSE 4000
 
-# Start the application with absolute path
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://localhost:4000/api/status || exit 1
+
+# Start the application
 CMD ["node", "/app/server/index.js"]
