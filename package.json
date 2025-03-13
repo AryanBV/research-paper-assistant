@@ -1,11 +1,11 @@
 {
-    "name": "research-paper-assistant",
-    "version": "1.0.0",
-    "engines": {
-      "node": "18.x"
-    },
-    "scripts": {
-      "start": "cd server && node index.js",
-      "build": "cd client && npm install && npm run build"
-    }
+  "name": "research-paper-assistant",
+  "version": "1.0.0",
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "build": "cd client && npm install && npm run build"
   }
+}

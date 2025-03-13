@@ -488,22 +488,23 @@ async function generatePaperPDF(paper) {
   const html = generateIEEETemplate(paper);
   
   // Add this to the options in generatePaperPDF
-    const options = {
-      format: 'Letter',
-      margin: {
-        top: '0.75in',
-        right: '0.625in',
-        bottom: '0.625in',
-        left: '0.625in'
-      },
-      printBackground: true,
-      displayHeaderFooter: false,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage'
-      ]
-    };
+  const options = {
+    format: 'Letter',
+    margin: {
+      top: '0.75in',
+      right: '0.625in',
+      bottom: '0.625in',
+      left: '0.625in'
+    },
+    printBackground: true,
+    displayHeaderFooter: false,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage'
+    ],
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium'
+  };
   
   const file = { content: html };
   
