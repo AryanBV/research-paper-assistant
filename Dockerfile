@@ -24,23 +24,17 @@ RUN apt-get update && apt-get install -y \
 # Set Chrome executable path for Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Set working directory
+# Copy server directory first
 WORKDIR /app
-
-# Copy application files
-COPY . .
+COPY server/ /app/server/
+COPY package*.json /app/
 
 # Create uploads directory
 RUN mkdir -p /app/server/uploads
 
-# Install dependencies
+# Install dependencies directly in server directory
+WORKDIR /app/server
 RUN npm install --production
-RUN cd server && npm install --production
-
-# Create a startup script
-RUN echo '#!/bin/bash' > /app/start.sh && \
-    echo 'cd /app/server && node index.js' >> /app/start.sh && \
-    chmod +x /app/start.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -49,5 +43,5 @@ ENV PORT=4000
 # Expose port
 EXPOSE 4000
 
-# Use the shell script to start the application
-CMD ["/app/start.sh"]
+# IMPORTANT: No shell commands, direct node execution
+CMD ["node", "/app/server/index.js"]
