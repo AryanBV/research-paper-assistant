@@ -29,7 +29,7 @@ WORKDIR /app
 # Copy the entire project
 COPY . .
 
-# Install dependencies using regular npm install (more forgiving than npm ci)
+# Install dependencies
 RUN npm install && \
     cd server && npm install && \
     cd ../client && npm install && npm run build
@@ -37,5 +37,5 @@ RUN npm install && \
 # Expose port 4000
 EXPOSE 4000
 
-# Start server
-CMD ["npm", "start"]
+# Use shell form of CMD to ensure shell commands work properly
+CMD ["sh", "-c", "cd server && node index.js"]
