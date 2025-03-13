@@ -487,22 +487,23 @@ function getMimeType(filePath) {
 async function generatePaperPDF(paper) {
   const html = generateIEEETemplate(paper);
   
-  const options = {
-    format: 'Letter',
-    margin: {
-      top: '0.75in',
-      right: '0.625in',
-      bottom: '0.625in',
-      left: '0.625in'
-    },
-    printBackground: true,
-    displayHeaderFooter: false,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage'
-    ]
-  };
+  // Add this to the options in generatePaperPDF
+    const options = {
+      format: 'Letter',
+      margin: {
+        top: '0.75in',
+        right: '0.625in',
+        bottom: '0.625in',
+        left: '0.625in'
+      },
+      printBackground: true,
+      displayHeaderFooter: false,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage'
+      ]
+    };
   
   const file = { content: html };
   
