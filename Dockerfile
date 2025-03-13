@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install Chrome dependencies needed for PDF generation with html-pdf-node
+# Install Chrome dependencies for PDF generation
 RUN apt-get update && apt-get install -y \
     libx11-xcb1 \
     libxcomposite1 \
@@ -21,23 +21,27 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Set environment variable for Puppeteer to use the installed Chromium
+# Set Chrome executable path for Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json files first (for better caching)
+# Copy package.json files first
 COPY package*.json ./
 
-# Install dependencies
+# Install root dependencies
 RUN npm install --production
 
-# Copy the rest of the application
+# Copy the application files
 COPY . .
 
-# Create uploads directory if it doesn't exist
+# Create uploads directory
 RUN mkdir -p /app/server/uploads
+
+# Install server dependencies
+WORKDIR /app/server
+RUN npm install --production
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -46,5 +50,6 @@ ENV PORT=4000
 # Expose port
 EXPOSE 4000
 
-# Start the application
-CMD ["npm", "start"]
+# Start the server directly from server directory
+# Important: Using direct node command instead of npm start
+CMD ["node", "index.js"]
