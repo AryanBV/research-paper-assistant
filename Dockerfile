@@ -27,21 +27,20 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 # Set working directory
 WORKDIR /app
 
-# Copy package.json files first
-COPY package*.json ./
-
-# Install root dependencies
-RUN npm install --production
-
-# Copy the application files
+# Copy application files
 COPY . .
 
 # Create uploads directory
 RUN mkdir -p /app/server/uploads
 
-# Install server dependencies
-WORKDIR /app/server
+# Install dependencies
 RUN npm install --production
+RUN cd server && npm install --production
+
+# Create a startup script
+RUN echo '#!/bin/bash' > /app/start.sh && \
+    echo 'cd /app/server && node index.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -50,6 +49,5 @@ ENV PORT=4000
 # Expose port
 EXPOSE 4000
 
-# Start the server directly from server directory
-# Important: Using direct node command instead of npm start
-CMD ["node", "index.js"]
+# Use the shell script to start the application
+CMD ["/app/start.sh"]
