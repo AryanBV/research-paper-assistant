@@ -9,6 +9,12 @@ COPY . .
 # Create uploads directory without changing permissions
 RUN mkdir -p /app/server/uploads
 
+# Fix permissions for the pptruser (the default user in puppeteer image)
+RUN chown -R pptruser:pptruser /app
+
+# Switch to pptruser before running npm commands
+USER pptruser
+
 # Install dependencies
 RUN npm install --production && \
     cd server && npm install --production && \
