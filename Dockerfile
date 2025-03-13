@@ -39,8 +39,8 @@ COPY . .
 # Install client dependencies and build
 RUN cd client && npm ci && npm run build
 
-# Expose port
-EXPOSE 5000
+# Expose port 4000 instead of 5000 to match Railway configuration
+EXPOSE 4000
 
 # Start server
 CMD ["npm", "start"]
