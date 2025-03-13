@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 
 # Install latest Chrome dependencies
 RUN apt-get update && apt-get install -y \
@@ -28,6 +28,10 @@ WORKDIR /app
 
 # Copy the entire project
 COPY . .
+
+# Create and set permissions for uploads directory
+RUN mkdir -p /app/server/uploads && \
+    chmod 777 /app/server/uploads
 
 # Install dependencies
 RUN npm install && \

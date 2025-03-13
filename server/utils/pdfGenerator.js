@@ -496,7 +496,12 @@ async function generatePaperPDF(paper) {
       left: '0.625in'
     },
     printBackground: true,
-    displayHeaderFooter: false
+    displayHeaderFooter: false,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage'
+    ]
   };
   
   const file = { content: html };
