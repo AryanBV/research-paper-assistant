@@ -1,34 +1,62 @@
-FROM ghcr.io/puppeteer/puppeteer:20.9.0
+FROM node:18-slim
+
+# Install Chrome dependencies for puppeteer
+RUN apt-get update && apt-get install -y \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxi6 \
+    libxtst6 \
+    libnss3 \
+    libcups2 \
+    libxss1 \
+    libxrandr2 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy the entire project
+# Copy package.json files first for better caching
+COPY package*.json ./
+COPY server/package*.json ./server/
+COPY client/package*.json ./client/
+
+# Create directories with correct permissions
+RUN mkdir -p /app/server/uploads && chmod 777 /app/server/uploads
+RUN chmod 777 /app/server && chmod 777 /app/client
+
+# Install root dependencies
+RUN npm install --production --no-bin-links
+
+# Install server dependencies
+WORKDIR /app/server
+RUN npm install --production --no-bin-links
+
+# Install and build client
+WORKDIR /app/client
+RUN npm install --no-bin-links
+RUN npm run build
+
+# Copy the rest of the app
+WORKDIR /app
 COPY . .
 
-# Create uploads directory without changing permissions
-RUN mkdir -p /app/server/uploads
-
-# Fix permissions for the pptruser (the default user in puppeteer image)
-RUN chown -R pptruser:pptruser /app
-
-# Switch to pptruser before running npm commands
-USER pptruser
-
-# Install dependencies
-RUN npm install --production && \
-    cd server && npm install --production && \
-    cd ../client && npm install && npm run build
-
-# Change working directory to server directory
-WORKDIR /app/server
-
-# Expose port 4000
-EXPOSE 4000
+# Ensure uploads directory exists and has correct permissions
+RUN chmod -R 777 /app/server/uploads
 
 # Set environment variables
-ENV NODE_ENV=production \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ENV NODE_ENV=production
 
-# Run server
+# Expose the port
+EXPOSE 4000
+
+# Change to server directory and start the server
+WORKDIR /app/server
 CMD ["node", "index.js"]
