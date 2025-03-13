@@ -23,8 +23,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log(`Created uploads directory at: ${uploadsDir}`);
 }
-
 
 // Log uploads directory access information
 console.log(`Uploads directory: ${uploadsDir}`);
@@ -49,6 +49,8 @@ app.use('/uploads', express.static(uploadsDir));
     const { initializeDatabase } = require('./utils/db-init');
     await initializeDatabase();
     console.log('Database tables initialization complete');
+  } else {
+    console.warn('Database connection failed. Some features may not work.');
   }
 })();
 
@@ -58,27 +60,64 @@ const apiRoutes = require('./routes/api');
 // API routes - make sure they're defined BEFORE the static/wildcard routes
 app.use('/api', apiRoutes);
 
-// API status route
+// API status route - useful for health checks
 app.get('/api/status', (req, res) => {
-  res.send('Research Paper Assistant API is running');
+  res.status(200).json({
+    status: 'ok',
+    message: 'Research Paper Assistant API is running',
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV
+  });
 });
 
 // Static file serving and catch-all routes for React app - MUST be AFTER API routes
 if (process.env.NODE_ENV === 'production') {
   console.log('Running in production mode, serving static files');
   
-  // First, serve the static files from React build
-  app.use(express.static(path.resolve(__dirname, '../client/build')));
+  // Define client build path
+  const clientBuildPath = path.resolve(__dirname, '../client/build');
   
-  // Then, serve the index.html for any unknown paths (React router will handle these)
-  app.get('*', (req, res) => {
-    console.log('Serving React app for path:', req.path);
-    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-  });
+  // Check if client build directory exists
+  if (fs.existsSync(clientBuildPath)) {
+    console.log(`Client build directory found at: ${clientBuildPath}`);
+    
+    // First, serve the static files from React build
+    app.use(express.static(clientBuildPath));
+    
+    // Then, serve the index.html for any unknown paths (React router will handle these)
+    app.get('*', (req, res) => {
+      console.log(`Serving React app for path: ${req.path}`);
+      res.sendFile(path.join(clientBuildPath, 'index.html'));
+    });
+  } else {
+    console.error(`Client build directory not found at: ${clientBuildPath}`);
+    
+    // Fallback route when client build is missing
+    app.get('*', (req, res) => {
+      res.status(500).send(`
+        <html>
+          <head><title>Server Error</title></head>
+          <body>
+            <h1>Server Configuration Error</h1>
+            <p>The client build files are missing. Please make sure to build the client before deploying.</p>
+          </body>
+        </html>
+      `);
+    });
+  }
 } else {
   // In development, just show API status
   app.get('/', (req, res) => {
-    res.send('Research Paper Assistant API is running - Development Mode');
+    res.send(`
+      <html>
+        <head><title>Research Paper Assistant API - Dev</title></head>
+        <body>
+          <h1>Research Paper Assistant API is running</h1>
+          <p>Development Mode</p>
+          <p>API Status: <a href="/api/status">/api/status</a></p>
+        </body>
+      </html>
+    `);
   });
 }
 
