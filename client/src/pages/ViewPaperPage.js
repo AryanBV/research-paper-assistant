@@ -13,7 +13,8 @@ const ViewPaperPage = () => {
   useEffect(() => {
     const fetchPaper = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/papers/${id}`);
+        const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api';
+        const response = await axios.get(`${API_URL}/papers/${id}`);
         setPaper(response.data.data);
       } catch (err) {
         console.error('Error fetching paper:', err);
@@ -49,7 +50,8 @@ const ViewPaperPage = () => {
   }
   
   const downloadPDF = () => {
-    window.open(`http://localhost:5000/api/papers/${id}/pdf`, '_blank');
+    const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api';
+    window.open(`${API_URL}/papers/${id}/pdf`, '_blank');
   };
   
   const handleEdit = () => {

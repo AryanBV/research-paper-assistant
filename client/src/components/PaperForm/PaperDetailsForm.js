@@ -230,7 +230,27 @@ const PaperDetailsForm = ({ initialPaperData = null, onSubmit, isEditing = false
       }
     } catch (err) {
       console.error(`Error ${isEditing ? 'updating' : 'submitting'} paper:`, err);
-      setError(`Failed to ${isEditing ? 'update' : 'submit'} paper. Please try again.`);
+      
+      // Enhanced error extraction from axios response
+      let errorMessage = `Failed to ${isEditing ? 'update' : 'submit'} paper`;
+      
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Server responded with error:', err.response);
+        errorMessage = err.response.data?.message || 
+                     `Server error: ${err.response.status} - ${err.response.statusText}`;
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error('No response received:', err.request);
+        errorMessage = 'No response from server. Please check your network connection.';
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up request:', err.message);
+        errorMessage = `Request error: ${err.message}`;
+      }
+      
+      setError(`${errorMessage}. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }

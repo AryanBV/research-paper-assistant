@@ -31,7 +31,8 @@ const EditPaperPage = () => {
   const handleSubmit = async (formData) => {
     try {
       // Update the paper using axios directly (or add to paperService)
-      const response = await axios.put(`http://localhost:5000/api/papers/${id}`, formData, {
+      const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api';
+      await axios.put(`${API_URL}/papers/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

@@ -1,7 +1,9 @@
 // client/src/services/paperService.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? '/api'  // In production, use relative path
+  : 'http://localhost:5000/api'; // In development, use localhost
 
 // Create a new paper with form data
 export const createPaper = async (formData) => {

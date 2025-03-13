@@ -10,7 +10,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPapers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/papers');
+        const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api';
+        const response = await axios.get(`${API_URL}/papers`);
         setPapers(response.data.data);
       } catch (error) {
         console.error('Error fetching papers:', error);
